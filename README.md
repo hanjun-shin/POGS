@@ -1,9 +1,9 @@
 ## POGS : Population of Genome Structure 
 
-## Installation
+### Installation
 
 
-## Dependencies
+### Dependencies
 + IMP
-+ [alab](https://github.com/ursinedeity/alab])
-+ [pyflow-alabmod](https://github.com/shanjunUSC/pyflow-alabmod])
++ [alab](https://github.com/ursinedeity/alab)
++ [pyflow-alabmod](https://github.com/shanjunUSC/pyflow-alabmod)
