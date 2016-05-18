@@ -47,7 +47,7 @@ class GeneratePopulationOfGenomeStructure(WorkflowRunner):
 		###############################################################
 		build_task_config = self.input_config
 		call(["mkdir", "-p", "%s/probMat" % build_task_config['output_dir']])
-		probMat = '%s/probMat/probMat.hdf5' % build_task_config['output_dir']
+		probMat = '%s/probMat/probMat.hdf5.hmat' % build_task_config['output_dir']
 		build_task_config['modeling_parameters'].update({'probMat' : probMat})
 				
 		build_TAD_map_wf = BuildTADMapFlow( build_task_config )
