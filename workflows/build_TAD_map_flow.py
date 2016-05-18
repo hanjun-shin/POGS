@@ -63,24 +63,32 @@ class BuildTADMapFlow(WorkflowRunner):
 		if not self.input_config.has_key('system') :
 			raise Exception('%s : Input config error, it does not have system ' % os.path.name(__file__))
 		else :
-			if not self.input_config['system'].has_key('basic_core') :
-				raise Exception('%s : Input config error, it does not have basic_core' % os.path.name(__file__))
+			if not self.input_config['system'].has_key('default_core') :
+				raise Exception('%s : Input config error, it does not have default_core' % os.path.name(__file__))
 			if not self.input_config['system'].has_key('max_memMB') :
 				raise Exception('%s : Input config error, it does not have max_memMB' % os.path.name(__file__))
 		
 		source = '%s/buildTADMap.py' % self.input_config['source_dir']
+		
 		matrixFile = self.input_config['input']['contact_map_file']
 		domainFile = self.input_config['input']['TAD_file']
+		genome = self.input_config['input']['genome']
+		resolution = self.input_config['input']['resolution']
+		
 		outputFile = self.input_config['modeling_parameters']['probMat']
-		nCores = self.input_config['system']['basic_core']
+		
+		nCores = self.input_config['system']['default_core']
 		memMb = self.input_config['system']['max_memMB']
+		
 				
 		args = [
 			'python',
 			source, 
 			'--matrixfile', matrixFile, 
 			'--domainfile', domainFile,
-			'--outputfile', outputFile
+			'--outputfile', outputFile,
+			'--genome', genome, 
+			'--resolution', resolution
 			]
 		
 		task_label = "buildTADMap_flow"

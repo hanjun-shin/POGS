@@ -22,8 +22,12 @@ __email__   = "nhua@usc.edu"
 #domainfile = 'gm12878.100k.Ke.removepeaks.2320.ind'
 #outputfile = "GSE63525_GM12878_100kb_krnorm_rmDiag_TadLevel.hdf5"
 	
-def main(matrixfile, domainfile, outputfile):
+def main(matrixfile, domainfile, outputfile, genome, resolution):
 	#load matrix in to memory along with idx info, genome version, and resolution of the matrix
+	
+	if genome != 'hg19':
+		raise Exception('%s does not supported' % genome)
+		
 	m = alab.matrix.contactmatrix(matrixfile)
 
 	#if you want to remove diagonal
@@ -72,7 +76,9 @@ def main(matrixfile, domainfile, outputfile):
 	#column 0 (suppose to be value for bedgraph file, here we use bead id)
 	#column 6 (flag)
 	#topdom header is as follows: bead_ID CHR from.coord to.coord from.bin to.bin chrbin.from chrbin.to tag"
-	domain = alab.files.bedgraph(domainfile,usecols=(1,2,3,0,6),skip_header=1)
+	#domain = alab.files.bedgraph(domainfile,usecols=(1,2,3,0,6),skip_header=1)
+	# bed format
+	domain = alab.files.bedgraph(domainfile,usecols=(0,1,2,2,3))
 
 	#assign the matrix with the domain info
 	#use pattern to filter the domain list flags, pattern="domain" will ignore all regions that don't contain "domain" flag 
@@ -89,7 +95,9 @@ if __name__ == "__main__":
 	parser.add_argument('--matrixfile', type=str, required=True)  #raw matrix file
 	parser.add_argument('--domainfile', type=str, required=True)  #domain file
 	parser.add_argument('--outputfile', type=str, required=True)  #output file
+	parser.add_argument('--genome', type=str, required=True)      #output file
+	parser.add_argument('--resolution', type=int, required=True)  #output file
 		
 	args = parser.parse_args()
    
-	main(args.matrixfile, args.domainfile, args.outputfile)
+	main(args.matrixfile, args.domainfile, args.outputfile, args.genome, args.resolution)

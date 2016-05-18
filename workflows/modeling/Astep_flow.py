@@ -96,15 +96,19 @@ class AStepFlow(WorkflowRunner):
 		task_config = self.input_config
 		task_config['modeling_parameters'].update({'pids' : self.input_config['system']['max_core']})
 		
-		args = ['python',
-				astep_src,
-				'--input_config', json.dumps(task_config)]
+		# args = ['python',
+				# astep_src,
+				# '--input_config', json.dumps(task_config)]
+				
+		# args = ['python',
+				# astep_src,
+				# json.dumps(task_config)]
 			
 		#args = ['python',
 		#		'/panfs/cmb-panasas2/shanjun/project/Hi-C/modelingPipe/workflows/test/test_code.py']
 
 		task_label = "Astep_flow"
-		self.addTask(label=task_label, command=' '.join(args), nCores=task_config['system']['max_core'], memMb=task_config['system']['max_memMB'], retryMax=3, retryWait=2, retryWindow=0, retryMode="all")
+		self.addTask(label=task_label, command='python %s \'%s\'' % (astep_src, json.dumps(task_config)), nCores=task_config['system']['max_core'], memMb=task_config['system']['max_memMB'], retryMax=3, retryWait=2, retryWindow=0, retryMode="all")
 		#self.addTask(label=task_label, command=' '.join(args), nCores=1, memMb=1500, retryMax=3, retryWait=2, retryWindow=0, retryMode="all")
 		# if self.flag:
 			# args.append('--flag')

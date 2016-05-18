@@ -81,11 +81,17 @@ class MStepFlow(WorkflowRunner):
 				# '--output_file', '%s/%s.hms' % (self.output_dir, task)
 			# ]
 			
+			# args = [
+				# 'python', 
+				# mstep_src, 
+				# '--input_config', json.dumps(task_config)
+				# ]
+				
 			args = [
 				'python', 
-				mstep_src, 
-				'--input_config', json.dumps(task_config)
-				]
+				mstep_src,
+				json.dumps(task_config)
+				]	
 				
 			#if self.actDist != None :
 			#	args.extend(['--actdistfile', self.actDist])
@@ -93,7 +99,8 @@ class MStepFlow(WorkflowRunner):
 		# if self.flag:
 			# args.append('--flag')
 
-			self.addTask(label=task, command=' '.join(args), nCores=1, memMb=1500, retryMax=3, retryWait=2, retryWindow=0, retryMode='all')
+			self.addTask(label=task, command='python %s \'%s\'' % (mstep_src, json.dumps(task_config)), nCores=1, memMb=1500, retryMax=3, retryWait=2, retryWindow=0, retryMode='all')
+			#self.addTask(label=task, command=' '.join(args), nCores=1, memMb=1500, retryMax=3, retryWait=2, retryWindow=0, retryMode='all')
 			time.sleep(0.2)
 			
 if __name__ == "__main__":
