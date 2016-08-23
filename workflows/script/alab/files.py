@@ -299,14 +299,16 @@ class modelgroup(object):
         self.score  = float(re.findall('Final score (\d+.\d+)',self.log)[0])
         self.genome = genome
         self.idx    = idx
+
+        findRes = re.findall('#of Intra restraints: (\d+) #of Inter restraints: (\d+)',self.log)
+        self.intraRestraints = float(findRes[0][0])
+        self.interRestraints = float(findRes[0][1])
+        findVio = re.findall('(\d+) violations in total',self.log)
+        self.consecutiveViolations = float(findVio[0])
         try:
-            findVio = re.findall('(\d+) violations in total',self.log)
-            self.consecutiveViolations = float(findVio[0])
-            self.contactViolations = float(findVio[1])
-            findRes = re.findall('#of Intra restraints: (\d+) #of Inter restraints: (\d+)',self.log)
-            self.intraRestraints = float(findRes[0][0])
-            self.interRestraints = float(findRes[0][1])
+            self.contactViolations = float(findVio[1])            
         except:
+            self.contactViolations = 0
             pass
     def __repr__(self):
         return 'Final Score: '+str(self.score)

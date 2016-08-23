@@ -13,9 +13,10 @@ import argparse
 import sys
 import os
 import json
-
+from subprocess import Popen, PIPE
 from subprocess import call
-from pyflow import WorkflowRunner
+
+from pyflow_alab.pyflow import WorkflowRunner
 from workflows.utils.args import add_pyflow_args
 from workflows.utils.args import default_pyflow_args
 from workflows.utils.args import extend_pyflow_docstring
@@ -27,14 +28,14 @@ __version__ = "0.0.1"
 __AstepCores__ = 8
 
 class AStepFlow(WorkflowRunner):
-	#def __init__(self, sys_config, input, struct_dir, output, last_freq, freq, nstruct, last_actDist=None):
+	#def __init__(self, sys_config, input, struct_dir, output, last_theta, theta, nstruct, last_actDist=None):
 	def __init__(self, input_config):
 		self.input_config = input_config
 		# self.input = input
 		# self.struct_dir = struct_dir
 		# self.output = output
-		# self.last_freq = last_freq
-		# self.freq = freq
+		# self.last_theta = last_theta
+		# self.theta = theta
 		# self.nstruct = nstruct
 		
 		# self.last_actDist = last_actDist		
@@ -61,10 +62,10 @@ class AStepFlow(WorkflowRunner):
 				raise Exception('%s : Input config error, it does not have structdir' % os.path.name(__file__))
 			if not self.input_config['modeling_parameters'].has_key('actDist') :
 				raise Exception('%s : Input config error, it does not have actDist' % os.path.name(__file__))
-			if not self.input_config['modeling_parameters'].has_key('last_freq') :
-				raise Exception('%s : Input config error, it does not have last_freq' % os.path.name(__file__))
-			if not self.input_config['modeling_parameters'].has_key('freq') :
-				raise Exception('%s : Input config error, it does not have freq' % os.path.name(__file__))	
+			if not self.input_config['modeling_parameters'].has_key('last_theta') :
+				raise Exception('%s : Input config error, it does not have last_theta' % os.path.name(__file__))
+			if not self.input_config['modeling_parameters'].has_key('theta') :
+				raise Exception('%s : Input config error, it does not have theta' % os.path.name(__file__))	
 			if not self.input_config['modeling_parameters'].has_key('num_of_structures') :
 				raise Exception('%s : Input config error, it does not have num_of_structures' % os.path.name(__file__))
 		
@@ -85,8 +86,8 @@ class AStepFlow(WorkflowRunner):
 				# '--probfile', self.input, 
 				# '--structdir', self.struct_dir,
 				# '--actFile', self.output,
-				# '--lastfb', self.last_freq,
-				# '--currentfb', self.freq,
+				# '--lastfb', self.last_theta,
+				# '--currentfb', self.theta,
 				# '--nstruct', self.nstruct,
 				# '--pids', '%d' % __AstepCores__
 				# ]
@@ -107,8 +108,9 @@ class AStepFlow(WorkflowRunner):
 		#args = ['python',
 		#		'/panfs/cmb-panasas2/shanjun/project/Hi-C/modelingPipe/workflows/test/test_code.py']
 
+		python_path = Popen("which python", shell=True, stdout=PIPE).stdout.read().rstrip('\n')		
 		task_label = "Astep_flow"
-		self.addTask(label=task_label, command='python %s \'%s\'' % (astep_src, json.dumps(task_config)), nCores=task_config['system']['max_core'], memMb=task_config['system']['max_memMB'], retryMax=3, retryWait=2, retryWindow=0, retryMode="all")
+		self.addTask(label=task_label, command='%s %s \'%s\'' % (python_path, astep_src, json.dumps(task_config)), nCores=task_config['system']['max_core'], memMb=task_config['system']['max_memMB'], retryMax=3, retryWait=2, retryWindow=0, retryMode="all")
 		#self.addTask(label=task_label, command=' '.join(args), nCores=1, memMb=1500, retryMax=3, retryWait=2, retryWindow=0, retryMode="all")
 		# if self.flag:
 			# args.append('--flag')
@@ -122,8 +124,8 @@ if __name__ == "__main__":
 	# parser.add_argument('-i', '--input', type=str, required=True)
 	# parser.add_argument('-s', '--struct_dir', type=str, required=True)
 	# parser.add_argument('-o', '--output', type=str, required=True)
-	# parser.add_argument('-l', '--last_freq', type=str, required=True)
-	# parser.add_argument('-f', '--freq', type=str, required=True)
+	# parser.add_argument('-l', '--last_theta', type=str, required=True)
+	# parser.add_argument('-f', '--theta', type=str, required=True)
 	# parser.add_argument('-n', '--nstruct', type=str, required=True)
 		
 	# parser.add_argument('-d', '--last_actDist', required=False, default=None)
@@ -136,8 +138,8 @@ if __name__ == "__main__":
 			# args.input,
 			# args.struct_dir,
 			# args.output,
-			# args.last_freq,
-			# args.freq,
+			# args.last_theta,
+			# args.theta,
 			# args.nstruct,
 			# args.last_actDist
 			# )

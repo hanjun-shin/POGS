@@ -3,7 +3,7 @@
 # Copyright (C) 2015 University of Southern California and
 #                          Nan Hua
 # 
-# Authors: Nan Hua
+# Authors: Nan Hua and Hanjun Shin
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +17,26 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
-from alab.analysis import structuresummary
+import numpy as np
 from subprocess import call
+
 #from __future__ import print_function
+import matplotlib
+matplotlib.use('Agg')
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import alab.matrix
+import sys
+sns.set(style="white")
+
+from alab.analysis import structuresummary
+from fetchVioDetail import plotVio
+import alab.plots
+
+
 __author__  = "Nan Hua"
 __credits__ = ["Hanjun Shin"]
 
@@ -34,8 +50,20 @@ if __name__=='__main__':
 	parser.add_argument('-p', '--prob', type=str, required=True)    #last frequency
 	parser.add_argument('-n', '--nstruct', type=int, required=True) #current freq
 	parser.add_argument('-o', '--output_dir', type=str, required=True) #current freq
+	parser.add_argument('-g', '--genome', type=str, required=True)
+	parser.add_argument('-r', '--resolution', type=int, required=True)
+	parser.add_argument('-m', '--probMat', type=str, required=True)
 	
 	args = parser.parse_args()
+	
+	chrList = []
+	if args.genome == 'hg19':
+		chrList = ['chr%i' % i for i in range(1,22)]
+		chrList.append('chrX')
+	else :
+		raise Exception("Current %s genome is not supported" % args.genome)
+	
+	
 	##################################################
 	#summary
 	##################################################
@@ -47,32 +75,80 @@ if __name__=='__main__':
     #violations
 	##################################################
 	call(["mkdir", "-p", "%s/violations" % args.output_dir])
-	#with open("%s/violations/violations.txt" % args.output_dir, 'w') as file:
-	#	file.write('Violation Ratio: %i' % int(s.totalViolations.mean())/int(s.totalRestraints.mean()))
+	with open("%s/violations/violations.txt" % args.output_dir, 'w') as file:
+		file.write('Violation Ratio: %f' % (s.totalViolations.mean()/s.totalRestraints.mean()))
 		#print 'Violation Ratio:',s.totalViolations.mean()/s.totalRestraints.mean()
-    
+		
+	plotVio(args.prob, args.nstruct, args.struct_dir, "%s/violations/violation_plot.pdf" % args.output_dir)
+	    
 	##################################################
-    #heatmap
+    #heatmap after modeling
 	##################################################
 	call(["mkdir", "-p", "%s/heatmap" % args.output_dir])
 	m = s.getContactMap()
-	m.plot('%s/heatmap/heatmap.pdf' % args.output_dir, format='pdf')
+	m.plot('%s/heatmap/modeling_heatmap.pdf' % args.output_dir, format='pdf', clip_max=1)
 	
 	##################################################
-	#IntraMatrix
+	#IntraMatrix after modeling
 	##################################################
-	chrList = ['chr%i' % i for i in range(1,23)]
-	chrList.append('chrX')
-	
 	call(["mkdir", "-p", "%s/intraMatrix" % args.output_dir])
 	for chr in chrList:
-		m.makeIntraMatrix(chr).plot('%s/intraMatrix/%s_intraMatrix.pdf' % (args.output_dir, chr), format='pdf')
-    
+		m.makeIntraMatrix(chr).plot('%s/intraMatrix/%s_modeling_intraMatrix.pdf' % (args.output_dir, chr), format='pdf', clip_max=1)
+		
+	##################################################
+    #heatmap of probMat
+	##################################################
+	call(["mkdir", "-p", "%s/heatmap" % args.output_dir])
+	prob_mat = alab.matrix.contactmatrix(args.probMat)
+	prob_mat.plot('%s/heatmap/probMat_heatmap.pdf' % args.output_dir, format='pdf', clip_max=1)
+	
+	##################################################
+	#IntraMatrix of probMat
+	##################################################
+	call(["mkdir", "-p", "%s/intraMatrix" % args.output_dir])
+	for chr in chrList:
+		prob_mat.makeIntraMatrix(chr).plot('%s/intraMatrix/%s_probMat_intraMatrix.pdf' % (args.output_dir, chr), format='pdf', clip_max=1)
+    	
 	###################################################
     #radial position
 	###################################################
-    #rp = s.getBeadRadialPosition(beads=range(len(s.idx)*2))
+	call(["mkdir", "-p", "%s/radialPlot" % args.output_dir])
+	
+	rp = s.getBeadRadialPosition(beads=range(len(s.idx)*2))
+	rp_mean = rp.mean(axis=1)
+	rp_hapmean = (rp_mean[:len(s.idx)]+rp_mean[len(s.idx):])/2
+	
+	np.savetxt('%s/radialPlot/radialPlot_summary.txt' % args.output_dir, rp_hapmean)
     
-    
+	for chr in chrList:
+		s.plotRadialPosition('%s/radialPlot/%s_radialPlot.pdf' % (args.output_dir, chr), chr, format='pdf')
+	
+	
+	###################################################
+    #Compare Matrix
+	###################################################
+	#modelfile1 = "Ke_tadmodel30.hdf5"
+	#modelfile2 = "Nan_tadmodel0.hdf5"
+	cutoff = 0.05
+	name1  = "Modeling"
+	name2  = "Probability Matrix"
+	comparePlotFile = "%s/heatmap/probMat_vs_modeling_compare_%i.pdf" % (args.output_dir, cutoff)
+
+	#mx = alab.matrix.contactmatrix(modelfile1)
+	mx = m
+	my = prob_mat
+
+	n = len(mx)
+	x = mx.matrix[np.triu_indices(n,1)]
+	y = my.matrix[np.triu_indices(n,1)]
+
+	x1 = pd.Series(np.log(x[(x > cutoff) & (y > cutoff)]),name = name1)
+	y1 = pd.Series(np.log(y[(x > cutoff) & (y > cutoff)]),name = name2)
+
+	g = sns.jointplot(x1,y1,kind="kde",size=7,space=0)
+
+	g.savefig(comparePlotFile)
+            
+        
     
     

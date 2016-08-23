@@ -30,26 +30,27 @@ def main(input_config):
 	else :
 		if not input_config['modeling_parameters'].has_key('probMat') :
 			raise Exception('%s : Input config error, it does not have probMat' % os.path.name(__file__))
-		if not input_config['modeling_parameters'].has_key('last_freq') :
-			raise Exception('%s : Input config error, it does not have last_freq' % os.path.name(__file__))
-		if not input_config['modeling_parameters'].has_key('freq') :
-			raise Exception('%s : Input config error, it does not have freq' % os.path.name(__file__))
+		if not input_config['modeling_parameters'].has_key('last_theta') :
+			raise Exception('%s : Input config error, it does not have last_theta' % os.path.name(__file__))
+		if not input_config['modeling_parameters'].has_key('theta') :
+			raise Exception('%s : Input config error, it does not have theta' % os.path.name(__file__))
 		if not input_config['modeling_parameters'].has_key('output_file') :
 			raise Exception('%s : Input config error, it does not have output_file' % os.path.name(__file__))
 		if not input_config['modeling_parameters'].has_key('last_actDist') :
 			raise Exception('%s : Input config error, it does not have last_actDist' % os.path.name(__file__))	
 	
 	probfile = str( input_config['modeling_parameters']['probMat'] )
-	lastfb = str( input_config['modeling_parameters']['last_freq'] )
-	currentfb = str( input_config['modeling_parameters']['freq'] )
+	lastfb = str( input_config['modeling_parameters']['last_theta'] )
+	currentfb = str( input_config['modeling_parameters']['theta'] )
 	output_file = str( input_config['modeling_parameters']['output_file'] )
 	actdistfile = str( input_config['modeling_parameters']['last_actDist'] )
 	
 	useLastCoordinates = False
-	if currentfb != 'p100' :
+	#if currentfb != 'p100' :
+	#	useLastCoordinates = True
+	if actdistfile != None and os.path.isfile(actdistfile) :
 		useLastCoordinates = True
-	
-	
+		
 	newmodel = alab.modeling.tadmodel(probfile,nucleusRadius=5000.0,contactRange=1)
 	tstart = time.time()
 
@@ -170,7 +171,7 @@ if __name__ == "__main__":
 	
 	# parser.add_argument('-p', '--probfile', type=str, required=True)  #probility matrix file in contactmatrix format
 	# parser.add_argument('-l', '--lastfb', type=str, required=True)	#last frequency
-	# parser.add_argument('-c', '--currentfb', type=str, required=True) #current freq
+	# parser.add_argument('-c', '--currentfb', type=str, required=True) #current theta
 	# parser.add_argument('-o', '--output_file', type=str, required=True) # dir for saving structures, e.g. xxx/structures/model*/
 	# parser.add_argument('-a', '--actdistfile', type=str, required=False, default=None) # the activation distance file by Astep.py e.g. model0.from.p010.to.p005.actDist
 	

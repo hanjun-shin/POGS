@@ -7,5 +7,5 @@ setup(
 	author_email = 'shanjun@usc.edu', 
 	url = '', 
 	description = '3D Modeling Pipeline Workflows',
-	packages=['workflows', 'workflows.utils', 'workflows.modeling']
+	packages=['pyflow_alab', 'workflows', 'workflows.utils', 'workflows.modeling']
 	)

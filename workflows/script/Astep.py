@@ -1,4 +1,22 @@
 #!/usr/bin/env python
+##
+# Copyright (C) 2016 University of Southern California and
+#                          Nan Hua
+# 
+# Authors: Nan Hua, Ke Gong, Harianto Tjong, and Hanjun Shin
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
 import sys
@@ -91,10 +109,10 @@ def main(input_config):
 			raise Exception('%s : Input config error, it does not have struct_dir' % os.path.name(__file__))
 		if not input_config['modeling_parameters'].has_key('actDist') :
 			raise Exception('%s : Input config error, it does not have actDist' % os.path.name(__file__))
-		if not input_config['modeling_parameters'].has_key('last_freq') :
-			raise Exception('%s : Input config error, it does not have last_freq' % os.path.name(__file__))
-		if not input_config['modeling_parameters'].has_key('freq') :
-			raise Exception('%s : Input config error, it does not have freq' % os.path.name(__file__))
+		if not input_config['modeling_parameters'].has_key('last_theta') :
+			raise Exception('%s : Input config error, it does not have last_theta' % os.path.name(__file__))
+		if not input_config['modeling_parameters'].has_key('theta') :
+			raise Exception('%s : Input config error, it does not have theta' % os.path.name(__file__))
 		if not input_config['modeling_parameters'].has_key('num_of_structures') :
 			raise Exception('%s : Input config error, it does not have num_of_structures' % os.path.name(__file__))
 		if not input_config['modeling_parameters'].has_key('last_actDist') :
@@ -105,8 +123,8 @@ def main(input_config):
 	probfile = str( input_config['modeling_parameters']['probMat'] )
 	structdir = str( input_config['modeling_parameters']['struct_dir'] )
 	actFile = str( input_config['modeling_parameters']['actDist'] )
-	lastfb = str( input_config['modeling_parameters']['last_freq'] )
-	currentfb = str( input_config['modeling_parameters']['freq'] )
+	lastfb = str( input_config['modeling_parameters']['last_theta'] )
+	currentfb = str( input_config['modeling_parameters']['theta'] )
 	nstruct = int( input_config['modeling_parameters']['num_of_structures'] )
 	pids = int( input_config['modeling_parameters']['pids'] )
 	plastfile = input_config['modeling_parameters']['last_actDist']
@@ -116,7 +134,12 @@ def main(input_config):
 	#################################
 	probmat	= alab.matrix.contactmatrix(probfile)
 	nbead	  = len(probmat)
-	targetfreq = float(re.search('\d+',currentfb).group(0))/100.
+	#targetfreq = float(re.search('\d+',currentfb).group(0))/100.
+	
+	getnum = re.compile(r'[^\d.]+')
+	#targetfreq = float(getnum.sub('',currentfb))/100.
+	targetfreq = float(getnum.sub('',currentfb))
+	
 	
 	#################################
 	#read in structure conformation #
@@ -194,8 +217,8 @@ if __name__ == "__main__":
 	# parser.add_argument('--probfile', type=str, required=True)  #probility matrix file in contactmatrix format <input>
 	# parser.add_argument('--structdir', type=str, required=True) #xxx/structures/model*/ <input>
 	# parser.add_argument('--actFile', type=str, required=True)   #activation distance file, <output>
-	# parser.add_argument('--lastfb', type=str, required=True)	#last frequency <parameter>
-	# parser.add_argument('--currentfb', type=str, required=True) #current freq <parameter>
+	# parser.add_argument('--lastfb', type=str, required=True)	#last theta <parameter>
+	# parser.add_argument('--currentfb', type=str, required=True) #current theta <parameter>
 	# parser.add_argument('--nstruct', type=int, required=True)	#number of structures <parameter>
 	
 	# parser.add_argument('--pids', type=int, required=False, default=8)	#number of processers to use <setup>
