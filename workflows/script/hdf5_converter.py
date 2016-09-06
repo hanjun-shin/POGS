@@ -33,7 +33,7 @@ if __name__=='__main__':
 	parser.add_argument('-i', '--matrixfile', type=str, required=True)  
 	parser.add_argument('-d', '--domainfile', type=str, required=True)  
 	parser.add_argument('-o', '--outputfile', type=str, required=True)    	
-		
+	parser.add_argument('-g', '--genome', type=str, required=True) 
 	args = parser.parse_args()
 	import alab.matrix
 	import alab.files
@@ -43,6 +43,7 @@ if __name__=='__main__':
 	domain = alab.files.bedgraph(args.domainfile,usecols=(0,1,2,2,3))
 	m.assignDomain(domain)
 	m._buildindex(m.domainIdx['chrom'],m.domainIdx['start'],m.domainIdx['end'],m.domainIdx['flag'])
+	m.genome = args.genome
 	m.save(args.outputfile)
 	# if matrixfile is hdf5 file,
 		# if output_file is not exist, then copy the matrixfile to output_file
