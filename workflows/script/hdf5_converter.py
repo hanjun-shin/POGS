@@ -43,7 +43,7 @@ if __name__=='__main__':
 	domain = alab.files.bedgraph(args.domainfile,usecols=(0,1,2,2,3))
 	m.assignDomain(domain)
 	m._buildindex(m.domainIdx['chrom'],m.domainIdx['start'],m.domainIdx['end'],m.domainIdx['flag'])
-	m.save(args.output_file)
+	m.save(args.outputfile)
 	# if matrixfile is hdf5 file,
 		# if output_file is not exist, then copy the matrixfile to output_file
 		# if output_file is exist, nothing to do.
