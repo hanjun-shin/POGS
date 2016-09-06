@@ -133,7 +133,8 @@ class BuildTADMapFlow(WorkflowRunner):
 				source, 
 				'--matrixfile', matrixFile, 
 				'--domainfile', domainFile,
-				'--outputfile', outputfile
+				'--outputfile', outputfile,
+				'--genome', genome
 				]
 		
 		 	task_label = "hdf5ConvertFlow"
